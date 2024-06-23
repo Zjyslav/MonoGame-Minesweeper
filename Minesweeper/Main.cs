@@ -3,12 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Minesweeper;
-public class Game1 : Game
+public class Main : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    public Game1()
+    public Main()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -18,6 +18,11 @@ public class Game1 : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
+        _graphics.PreferredBackBufferHeight = 500;
+        _graphics.PreferredBackBufferWidth = 500;
+        _graphics.ApplyChanges();
+
+        Window.AllowUserResizing = false;
 
         base.Initialize();
     }
@@ -41,7 +46,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(new Color(243,243,243));
 
         // TODO: Add your drawing code here
 
