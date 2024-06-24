@@ -32,6 +32,11 @@ public class TileBoard : DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+
+        foreach (var tile in _tiles)
+        {
+            tile.Update(gameTime);
+        }
     }
 
     public override void Draw(GameTime gameTime)

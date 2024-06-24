@@ -7,6 +7,7 @@ public class TileState
     public int Row { get; }
     public int Col { get; }
     public bool HasBomb { get; set; } = false;
+    public TileStatus Status { get; set; } = TileStatus.Hidden;
 
     public int AdjacentBombs => _adjacent.Where(t => t.HasBomb).Count();
 
@@ -26,4 +27,12 @@ public class TileState
             .Where(t => t != this)
             .ToList();
     }
+}
+
+public enum TileStatus
+{
+    Hidden,
+    Revealed,
+    MouseDown,
+    Flagged,
 }
