@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Minesweeper.Components;
+using Minesweeper.State;
 
 namespace Minesweeper;
 public class Main : Game
@@ -20,8 +22,20 @@ public class Main : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-        _graphics.PreferredBackBufferHeight = 500;
-        _graphics.PreferredBackBufferWidth = 500;
+        int rows = 16;
+        int cols = 30;
+        int bombs = 99;
+
+        int margins = 50;
+
+        GameState gameState = new(rows, cols, bombs);
+        Services.AddService(gameState);
+        Vector2 tileBoardDrawLocation = new(margins, margins);
+        TileBoard tileBoard = new(this, tileBoardDrawLocation);
+        Components.Add(tileBoard);
+
+        _graphics.PreferredBackBufferHeight = margins * 2 + rows * 32;
+        _graphics.PreferredBackBufferWidth = margins * 2 + cols * 32;
         _graphics.ApplyChanges();
 
         Window.AllowUserResizing = false;
@@ -52,29 +66,6 @@ public class Main : Game
         GraphicsDevice.Clear(new Color(243,243,243));
 
         // TODO: Add your drawing code here
-        _spriteBatch.Begin();
-
-        int startingX = 100;
-        int startingY = 100;
-
-        int rows = 8;
-        int cols = 8;
-
-        for (int row = 0; row < rows; row++)
-        {
-            for (int col = 0; col < cols; col++)
-            {
-                _spriteBatch.Draw(
-                    _tileSpriteSheet,
-                    new Vector2(col*32 + startingX, row*32 + startingY),
-                    new Rectangle(0, 0, 32, 32),
-                    Color.White
-                );
-            }
-        }
-
-        _spriteBatch.End();
-
         base.Draw(gameTime);
     }
 }
