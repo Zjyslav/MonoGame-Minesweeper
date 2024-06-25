@@ -1,11 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Minesweeper.Services;
 using Minesweeper.State;
 using System.Collections.Generic;
 
 namespace Minesweeper.Components;
 public class TileBoard : DrawableGameComponent
 {
+    GameStateProvider _gameStateProvider;
     GameState _gameState;
     List<Tile> _tiles = new();
 
@@ -18,13 +20,16 @@ public class TileBoard : DrawableGameComponent
 
     public override void Initialize()
     {
-        _gameState = Game.Services.GetService<GameState>();
+        _gameStateProvider = Game.Services.GetService<GameStateProvider>();
+        _gameState = _gameStateProvider.ActiveGameState;
         foreach (var tileState in _gameState.TileStates)
         {
             Tile tile = new(Game, tileState, this);
             tile.Initialize();
             _tiles.Add(tile);
         }
+
+        GenerateTiles();
 
         base.Initialize();
     }
@@ -55,5 +60,24 @@ public class TileBoard : DrawableGameComponent
     protected override void UnloadContent()
     {
         base.UnloadContent();
+    }
+
+    private void Restart(int rows, int cols, int bombs)
+    {
+        _gameStateProvider.Restart(rows, cols, bombs);
+        _gameState = _gameStateProvider.ActiveGameState;
+        GenerateTiles();
+    }
+
+    private void GenerateTiles()
+    {
+        _tiles.Clear();
+
+        foreach (var tileState in _gameState.TileStates)
+        {
+            Tile tile = new(Game, tileState, this);
+            tile.Initialize();
+            _tiles.Add(tile);
+        }
     }
 }

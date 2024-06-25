@@ -6,12 +6,19 @@ namespace Minesweeper.State;
 public class GameState
 {
     public List<TileState> TileStates { get; } = new List<TileState>();
+    public GameStatus Status { get; private set; } = GameStatus.NotStarted;
+    public int BombsRemaining { get; private set; }
+    public int BombsTotal { get; init; }
+    
     public GameState(int rows, int cols, int bombs)
     {
         if (bombs > rows * cols)
         {
             throw new ArgumentException("You cannot have more bombs than tiles.", nameof(bombs));
         }
+
+        BombsRemaining = bombs;
+        BombsTotal = bombs;
 
         for (int r = 0; r < rows; r++)
         {
@@ -32,6 +39,139 @@ public class GameState
         foreach (var tile in TileStates)
         {
             tile.LinkWithAdjacent(TileStates);
+            tile.RMBClicked += OnTileRMBClicked;
+            tile.LMBClicked += OnTileLMBClicked;
+            tile.BothMBClicked += OnTileBothMBClicked;
+            tile.Exploded += OnTileExploded;
         }
     }
+
+    private void OnTileRMBClicked(object sender, EventArgs e)
+    {
+        TileState? tile = sender as TileState;
+        if (tile is null)
+        {
+            throw new InvalidOperationException($"{nameof(OnTileRMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
+        }
+
+        switch (tile.Status)
+        {
+            case TileStatus.Hidden:
+            case TileStatus.MouseDown:
+                HandleHiddenTileRMBClick(tile);
+                break;
+            case TileStatus.Revealed:
+                HandleRevealedTileRMBClick(tile);
+                break;
+            case TileStatus.Flagged:
+                HandleFlaggedTileRMBClick(tile);
+                break;
+        }
+    }
+    private void OnTileLMBClicked(object sender, EventArgs e)
+    {
+        TileState? tile = sender as TileState;
+        if (tile is null)
+        {
+            throw new InvalidOperationException($"{nameof(OnTileRMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
+        }
+
+        switch (tile.Status)
+        {
+            case TileStatus.Hidden:
+            case TileStatus.MouseDown:
+                HandleHiddenTileLMBClick(tile);
+                break;
+            case TileStatus.Revealed:
+                HandleRevealedTileLMBClick(tile);
+                break;
+            case TileStatus.Flagged:
+                HandleFlaggedTileLMBClick(tile);
+                break;
+        }
+    }
+
+    private void OnTileBothMBClicked(object sender, EventArgs e)
+    {
+        TileState? tile = sender as TileState;
+        if (tile is null)
+        {
+            throw new InvalidOperationException($"{nameof(OnTileBothMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
+        }
+
+        switch (tile.Status)
+        {
+            case TileStatus.Hidden:
+            case TileStatus.MouseDown:
+                HandleHiddenTileBothMBClick(tile);
+                break;
+            case TileStatus.Revealed:
+                HandleRevealedTileBothMBClick(tile);
+                break;
+            case TileStatus.Flagged:
+                HandleFlaggedTileBothMBClick(tile);
+                break;
+        }
+    }
+
+    private void HandleHiddenTileRMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+    private void HandleHiddenTileLMBClick(TileState tile)
+    {
+        tile.Reveal();
+    }
+    private void HandleHiddenTileBothMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void HandleRevealedTileLMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+    private void HandleRevealedTileRMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+    private void HandleRevealedTileBothMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void HandleFlaggedTileLMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+    private void HandleFlaggedTileRMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+    private void HandleFlaggedTileBothMBClick(TileState tile)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void OnTileExploded(object sender, EventArgs e)
+    {
+        GameLost();
+    }
+
+    private void GameLost()
+    {
+        Status = GameStatus.Lost;
+        foreach (TileState tile in TileStates)
+        {
+            tile.RevealOnGameLost();
+        }
+    }
+}
+
+public enum GameStatus
+{
+    NotStarted,
+    Started,
+    Won,
+    Lost,
 }

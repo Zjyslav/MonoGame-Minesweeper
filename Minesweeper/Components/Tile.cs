@@ -48,7 +48,7 @@ public class Tile : DrawableGameComponent
         {
             if (mouseState.LeftButton == ButtonState.Released)
             {
-                _state.Status = TileStatus.Revealed;
+                _state.LMBClick();
                 _mouseDown = false;
             }
             if (mouseState.LeftButton == ButtonState.Pressed &&
@@ -94,6 +94,21 @@ public class Tile : DrawableGameComponent
         if (_state.Status == TileStatus.Hidden)
         {
             return new(0, 0, _tileWidth, _tileHeight);
+        }
+
+        if (_state.Status == TileStatus.Exploded)
+        {
+            return new(3 * _tileWidth, 0, _tileWidth, _tileHeight);
+        }
+
+        if (_state.Status == TileStatus.WronglyFlagged)
+        {
+            return new(4 * _tileWidth, 0, _tileWidth, _tileHeight);
+        }
+
+        if (_state.Status == TileStatus.Flagged)
+        {
+            return new(5 * _tileWidth, 0, _tileWidth, _tileHeight);
         }
 
         if (_state.HasBomb)

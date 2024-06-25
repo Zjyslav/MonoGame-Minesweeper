@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Minesweeper.State;
@@ -9,9 +10,14 @@ public class TileState
     public bool HasBomb { get; set; } = false;
     public TileStatus Status { get; set; } = TileStatus.Hidden;
 
-    public int AdjacentBombs => _adjacent.Where(t => t.HasBomb).Count();
+    public int AdjacentBombs => _adjacentTiles.Where(t => t.HasBomb).Count();
 
-    private List<TileState> _adjacent = new();
+    private List<TileState> _adjacentTiles = new();
+
+    public event EventHandler RMBClicked;
+    public event EventHandler LMBClicked;
+    public event EventHandler BothMBClicked;
+    public event EventHandler Exploded;
 
     public TileState(int row, int col)
     {
@@ -21,11 +27,70 @@ public class TileState
 
     public void LinkWithAdjacent(IEnumerable<TileState> tiles)
     {
-        _adjacent = tiles
+        _adjacentTiles = tiles
             .Where(t => t.Row >= Row - 1 && t.Row <= Row + 1)
             .Where(t => t.Col >= Col - 1 && t.Col <= Col + 1)
             .Where(t => t != this)
             .ToList();
+    }
+
+    public void LMBClick()
+    {
+        LMBClicked?.Invoke(this, EventArgs.Empty);
+    }
+    public void RMBClick()
+    {
+        RMBClicked?.Invoke(this, EventArgs.Empty);
+    }
+    public void BothMBClick()
+    {
+        BothMBClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void Reveal()
+    {
+        if (Status != TileStatus.Hidden &&
+            Status != TileStatus.Flagged)
+        {
+            return;
+        }
+
+        if (HasBomb)
+        {
+            Explode();
+            return;
+        }
+
+        Status = TileStatus.Revealed;
+
+        if (AdjacentBombs == 0)
+        {
+            RevealAdjacent();
+        }
+    }
+
+    public void RevealOnGameLost()
+    {
+        if (Status == TileStatus.Flagged && HasBomb == false)
+        {
+            Status = TileStatus.WronglyFlagged;
+            return;
+        }
+        Status = TileStatus.Revealed;
+    }
+
+    private void Explode()
+    {
+        Exploded?.Invoke(this, EventArgs.Empty);
+        Status = TileStatus.Exploded;
+    }
+
+    private void RevealAdjacent()
+    {
+        foreach (TileState tile in _adjacentTiles)
+        {
+            tile.Reveal();
+        }
     }
 }
 
@@ -35,4 +100,6 @@ public enum TileStatus
     Revealed,
     MouseDown,
     Flagged,
+    Exploded,
+    WronglyFlagged,
 }

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Minesweeper.Components;
+using Minesweeper.Services;
 using Minesweeper.State;
 
 namespace Minesweeper;
@@ -28,8 +29,8 @@ public class Main : Game
 
         int margins = 50;
 
-        GameState gameState = new(rows, cols, bombs);
-        Services.AddService(gameState);
+        GameStateProvider gameStateProvider = new(rows, cols, bombs);
+        Services.AddService(gameStateProvider);
         Vector2 tileBoardDrawLocation = new(margins, margins);
         TileBoard tileBoard = new(this, tileBoardDrawLocation);
         Components.Add(tileBoard);
