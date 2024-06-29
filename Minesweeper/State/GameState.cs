@@ -116,7 +116,8 @@ public class GameState
 
     private void HandleHiddenTileRMBClick(TileState tile)
     {
-        throw new NotImplementedException();
+        tile.ToggleFlag();
+        BombsRemaining--;
     }
     private void HandleHiddenTileLMBClick(TileState tile)
     {
@@ -146,7 +147,8 @@ public class GameState
     }
     private void HandleFlaggedTileRMBClick(TileState tile)
     {
-        throw new NotImplementedException();
+        tile.ToggleFlag();
+        BombsRemaining++;
     }
     private void HandleFlaggedTileBothMBClick(TileState tile)
     {

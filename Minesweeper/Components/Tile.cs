@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Minesweeper.State;
+using System;
 
 namespace Minesweeper.Components;
 public class Tile : DrawableGameComponent
@@ -11,7 +12,8 @@ public class Tile : DrawableGameComponent
     private Texture2D _spriteSheet;
     private SpriteBatch _spriteBatch;
     private Vector2 _tilePosition;
-    private bool _mouseDown = false;
+    private bool _leftMouseButtonDown = false;
+    private bool _rightMouseButtonDown = false;
 
     private const int _tileWidth = 32;
     private const int _tileHeight = 32;
@@ -32,16 +34,26 @@ public class Tile : DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        HandleMouseButtons();
+    }
 
+    private void HandleMouseButtons()
+    {
         var mouseState = Mouse.GetState();
 
-        if (_mouseDown == false)
+        HandleLeftMouseButton(mouseState);
+        HandleRightMouseButton(mouseState);
+    }
+
+    private void HandleLeftMouseButton(MouseState mouseState)
+    {
+        if (_leftMouseButtonDown == false)
         {
             if (mouseState.LeftButton == ButtonState.Pressed &&
                 IsMouseOver(mouseState.Position) &&
                 _state.Status == TileStatus.Hidden)
             {
-                _mouseDown = true;
+                _leftMouseButtonDown = true;
             }
         }
         else
@@ -49,12 +61,38 @@ public class Tile : DrawableGameComponent
             if (mouseState.LeftButton == ButtonState.Released)
             {
                 _state.LMBClick();
-                _mouseDown = false;
+                _leftMouseButtonDown = false;
             }
             if (mouseState.LeftButton == ButtonState.Pressed &&
                 IsMouseOver(mouseState.Position) == false)
             {
-                _mouseDown = false;
+                _leftMouseButtonDown = false;
+            }
+        }
+    }
+
+    private void HandleRightMouseButton(MouseState mouseState)
+    {
+        if (_rightMouseButtonDown == false)
+        {
+            if (mouseState.RightButton == ButtonState.Pressed &&
+                IsMouseOver(mouseState.Position) &&
+                (_state.Status == TileStatus.Hidden || _state.Status == TileStatus.Flagged))
+            {
+                _rightMouseButtonDown = true;
+            }
+        }
+        else
+        {
+            if (mouseState.RightButton == ButtonState.Released)
+            {
+                _state.RMBClick();
+                _rightMouseButtonDown = false;
+            }
+            if (mouseState.RightButton == ButtonState.Pressed &&
+                IsMouseOver(mouseState.Position) == false)
+            {
+                _rightMouseButtonDown = false;
             }
         }
     }
@@ -86,7 +124,7 @@ public class Tile : DrawableGameComponent
 
     private Rectangle GetSourceRectangle()
     {
-        if (_mouseDown)
+        if (_leftMouseButtonDown)
         {
             return new(1 * _tileWidth, 0, _tileWidth, _tileHeight);
         }

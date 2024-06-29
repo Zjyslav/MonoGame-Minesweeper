@@ -71,12 +71,22 @@ public class TileState
 
     public void RevealOnGameLost()
     {
-        if (Status == TileStatus.Flagged && HasBomb == false)
+        if (Status == TileStatus.Flagged)
         {
-            Status = TileStatus.WronglyFlagged;
+            Status = HasBomb ? TileStatus.Flagged : TileStatus.WronglyFlagged;
             return;
         }
         Status = TileStatus.Revealed;
+    }
+
+    public void ToggleFlag()
+    {
+        Status = Status switch
+        {
+            TileStatus.Hidden => TileStatus.Flagged,
+            TileStatus.Flagged => TileStatus.Hidden,
+            _ => Status,
+        };
     }
 
     private void Explode()
