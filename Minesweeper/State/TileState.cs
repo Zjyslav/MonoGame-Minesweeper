@@ -36,15 +36,15 @@ public class TileState
 
     public void LMBClick()
     {
-        LMBClicked?.Invoke(this, EventArgs.Empty);
+        LMBClicked?.Invoke(this, System.EventArgs.Empty);
     }
     public void RMBClick()
     {
-        RMBClicked?.Invoke(this, EventArgs.Empty);
+        RMBClicked?.Invoke(this, System.EventArgs.Empty);
     }
     public void BothMBClick()
     {
-        BothMBClicked?.Invoke(this, EventArgs.Empty);
+        BothMBClicked?.Invoke(this, System.EventArgs.Empty);
     }
 
     public void Reveal()
@@ -91,7 +91,7 @@ public class TileState
 
     private void Explode()
     {
-        Exploded?.Invoke(this, EventArgs.Empty);
+        Exploded?.Invoke(this, System.EventArgs.Empty);
         Status = TileStatus.Exploded;
     }
 

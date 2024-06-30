@@ -10,6 +10,11 @@ public class Main : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private GameStateProvider _gameStateProvider;
+
+    private int _rows = 16;
+    private int _cols = 16;
+    private int _bombs= 40;
 
     Texture2D _tileSpriteSheet;
 
@@ -23,20 +28,17 @@ public class Main : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-        int rows = 16;
-        int cols = 30;
-        int bombs = 99;
 
         int margins = 50;
 
-        GameStateProvider gameStateProvider = new(rows, cols, bombs);
-        Services.AddService(gameStateProvider);
+        _gameStateProvider = new(_rows, _cols, _bombs);
+        Services.AddService(_gameStateProvider);
         Vector2 tileBoardDrawLocation = new(margins, margins);
         TileBoard tileBoard = new(this, tileBoardDrawLocation);
         Components.Add(tileBoard);
 
-        _graphics.PreferredBackBufferHeight = margins * 2 + rows * 32;
-        _graphics.PreferredBackBufferWidth = margins * 2 + cols * 32;
+        _graphics.PreferredBackBufferHeight = margins * 2 + _rows * 32;
+        _graphics.PreferredBackBufferWidth = margins * 2 + _cols * 32;
         _graphics.ApplyChanges();
 
         Window.AllowUserResizing = false;
@@ -55,7 +57,7 @@ public class Main : Game
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+            _gameStateProvider.RestartGame(_rows, _cols, _bombs);
 
         // TODO: Add your update logic here
 

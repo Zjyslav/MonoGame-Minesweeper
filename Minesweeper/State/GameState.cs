@@ -9,9 +9,12 @@ public class GameState
     public GameStatus Status { get; private set; } = GameStatus.NotStarted;
     public int BombsRemaining { get; private set; }
     public int BombsTotal { get; init; }
+    public event EventHandler GameLost;
     
     public GameState(int rows, int cols, int bombs)
     {
+        GameLost += OnGameLost;
+
         if (bombs > rows * cols)
         {
             throw new ArgumentException("You cannot have more bombs than tiles.", nameof(bombs));
@@ -46,7 +49,7 @@ public class GameState
         }
     }
 
-    private void OnTileRMBClicked(object sender, EventArgs e)
+    private void OnTileRMBClicked(object sender, System.EventArgs e)
     {
         TileState? tile = sender as TileState;
         if (tile is null)
@@ -68,7 +71,7 @@ public class GameState
                 break;
         }
     }
-    private void OnTileLMBClicked(object sender, EventArgs e)
+    private void OnTileLMBClicked(object sender, System.EventArgs e)
     {
         TileState? tile = sender as TileState;
         if (tile is null)
@@ -91,7 +94,7 @@ public class GameState
         }
     }
 
-    private void OnTileBothMBClicked(object sender, EventArgs e)
+    private void OnTileBothMBClicked(object sender, System.EventArgs e)
     {
         TileState? tile = sender as TileState;
         if (tile is null)
@@ -155,12 +158,17 @@ public class GameState
         throw new NotImplementedException();
     }
 
-    private void OnTileExploded(object sender, EventArgs e)
+    private void OnTileExploded(object sender, System.EventArgs e)
     {
-        GameLost();
+        LoseGame();
     }
 
-    private void GameLost()
+    private void LoseGame()
+    {
+        GameLost?.Invoke(this, System.EventArgs.Empty);
+    }
+
+    private void OnGameLost(object sender, System.EventArgs e)
     {
         Status = GameStatus.Lost;
         foreach (TileState tile in TileStates)

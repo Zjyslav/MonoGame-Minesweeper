@@ -21,17 +21,18 @@ public class TileBoard : DrawableGameComponent
     public override void Initialize()
     {
         _gameStateProvider = Game.Services.GetService<GameStateProvider>();
+        _gameStateProvider.GameRestarted += OnGameRestarted;
         _gameState = _gameStateProvider.ActiveGameState;
-        foreach (var tileState in _gameState.TileStates)
-        {
-            Tile tile = new(Game, tileState, this);
-            tile.Initialize();
-            _tiles.Add(tile);
-        }
 
         GenerateTiles();
 
         base.Initialize();
+    }
+
+    private void OnGameRestarted(object sender, EventArgs.RestartedEventArgs e)
+    {
+        _gameState = e.NewGameState;
+        GenerateTiles();
     }
 
     public override void Update(GameTime gameTime)
@@ -60,13 +61,6 @@ public class TileBoard : DrawableGameComponent
     protected override void UnloadContent()
     {
         base.UnloadContent();
-    }
-
-    private void Restart(int rows, int cols, int bombs)
-    {
-        _gameStateProvider.Restart(rows, cols, bombs);
-        _gameState = _gameStateProvider.ActiveGameState;
-        GenerateTiles();
     }
 
     private void GenerateTiles()
