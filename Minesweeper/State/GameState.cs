@@ -53,7 +53,7 @@ public class GameState
 
     private void OnTileRMBClicked(object sender, System.EventArgs e)
     {
-        TileState? tile = sender as TileState;
+        TileState tile = sender as TileState;
         if (tile is null)
         {
             throw new InvalidOperationException($"{nameof(OnTileRMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
@@ -75,7 +75,7 @@ public class GameState
     }
     private void OnTileLMBClicked(object sender, System.EventArgs e)
     {
-        TileState? tile = sender as TileState;
+        TileState tile = sender as TileState;
         if (tile is null)
         {
             throw new InvalidOperationException($"{nameof(OnTileRMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
@@ -98,7 +98,7 @@ public class GameState
 
     private void OnTileBothMBClicked(object sender, System.EventArgs e)
     {
-        TileState? tile = sender as TileState;
+        TileState tile = sender as TileState;
         if (tile is null)
         {
             throw new InvalidOperationException($"{nameof(OnTileBothMBClicked)} invoked by object of type {sender.GetType()}, not of type {typeof(TileState)}.");
