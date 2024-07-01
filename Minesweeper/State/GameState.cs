@@ -9,10 +9,12 @@ public class GameState
     public GameStatus Status { get; private set; } = GameStatus.NotStarted;
     public int BombsRemaining { get; private set; }
     public int BombsTotal { get; init; }
+    public event EventHandler GameStarted;
     public event EventHandler GameLost;
-    
+
     public GameState(int rows, int cols, int bombs)
     {
+        GameStarted += OnGameStarted;
         GameLost += OnGameLost;
 
         if (bombs > rows * cols)
@@ -124,8 +126,17 @@ public class GameState
     }
     private void HandleHiddenTileLMBClick(TileState tile)
     {
+        if (Status == GameStatus.NotStarted)
+        {
+            if (tile.HasBomb)
+            {
+                MoveBombToRandomEmptyTile(tile);
+            }
+            StartGame();
+        }
         tile.Reveal();
     }
+
     private void HandleHiddenTileBothMBClick(TileState tile)
     {
         throw new NotImplementedException();
@@ -163,9 +174,20 @@ public class GameState
         LoseGame();
     }
 
+    private void StartGame()
+    {
+        GameStarted?.Invoke(this, System.EventArgs.Empty);
+    }
+
     private void LoseGame()
     {
         GameLost?.Invoke(this, System.EventArgs.Empty);
+    }
+
+
+    private void OnGameStarted(object sender, System.EventArgs e)
+    {
+        Status = GameStatus.Started;
     }
 
     private void OnGameLost(object sender, System.EventArgs e)
@@ -175,6 +197,17 @@ public class GameState
         {
             tile.RevealOnGameLost();
         }
+    }
+
+    private void MoveBombToRandomEmptyTile(TileState tileWithBomb)
+    {
+        TileState emptyTile = TileStates
+            .Where(t => t.HasBomb == false)
+            .OrderBy(t => Random.Shared.Next())
+            .First();
+
+        tileWithBomb.HasBomb = false;
+        emptyTile.HasBomb = true;
     }
 }
 
