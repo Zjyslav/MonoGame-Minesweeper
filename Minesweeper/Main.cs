@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Minesweeper.Components;
 using Minesweeper.Services;
 using Minesweeper.State;
+using System;
 
 namespace Minesweeper;
 public class Main : Game
@@ -15,6 +16,7 @@ public class Main : Game
     private int _rows = 16;
     private int _cols = 16;
     private int _bombs= 40;
+    private int _margins = 32;
 
     Texture2D _tileSpriteSheet;
 
@@ -29,17 +31,16 @@ public class Main : Game
     {
         // TODO: Add your initialization logic here
 
-        int margins = 50;
-
         _gameStateProvider = new(_rows, _cols, _bombs);
         Services.AddService(_gameStateProvider);
-        Vector2 tileBoardDrawLocation = new(margins, margins);
+        Vector2 tileBoardDrawLocation = new(_margins, _margins);
+        Vector2 borderDrawLocation = Vector2.Zero;
         TileBoard tileBoard = new(this, tileBoardDrawLocation);
+        Border border = new(this, borderDrawLocation);
         Components.Add(tileBoard);
+        Components.Add(border);
 
-        _graphics.PreferredBackBufferHeight = margins * 2 + _rows * 32;
-        _graphics.PreferredBackBufferWidth = margins * 2 + _cols * 32;
-        _graphics.ApplyChanges();
+        SetWindowSize();
 
         Window.AllowUserResizing = false;
 
@@ -70,5 +71,11 @@ public class Main : Game
 
         // TODO: Add your drawing code here
         base.Draw(gameTime);
+    }
+    private void SetWindowSize()
+    {
+        _graphics.PreferredBackBufferHeight = _margins * 2 + _rows * 32;
+        _graphics.PreferredBackBufferWidth = _margins * 2 + _cols * 32;
+        _graphics.ApplyChanges();
     }
 }

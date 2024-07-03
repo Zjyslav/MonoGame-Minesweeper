@@ -9,6 +9,8 @@ public class GameState
     public GameStatus Status { get; private set; } = GameStatus.NotStarted;
     public int BombsRemaining { get; private set; }
     public int BombsTotal { get; init; }
+    public int Rows { get; private set; }
+    public int Cols { get; private set; }
     public event EventHandler GameStarted;
     public event EventHandler GameLost;
 
@@ -22,6 +24,8 @@ public class GameState
             throw new ArgumentException("You cannot have more bombs than tiles.", nameof(bombs));
         }
 
+        Rows = rows;
+        Cols = cols;
         BombsRemaining = bombs;
         BombsTotal = bombs;
 
