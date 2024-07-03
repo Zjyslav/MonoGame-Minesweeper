@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Minesweeper.Components;
 using Minesweeper.Services;
-using Minesweeper.State;
-using System;
 
 namespace Minesweeper;
 public class Main : Game
@@ -15,8 +13,9 @@ public class Main : Game
 
     private int _rows = 16;
     private int _cols = 16;
-    private int _bombs= 40;
-    private int _margins = 32;
+    private int _bombs = 20;
+    private int _borderWidth = 32;
+    private int _panelHeight = 3 * 32;
 
     Texture2D _tileSpriteSheet;
 
@@ -33,12 +32,16 @@ public class Main : Game
 
         _gameStateProvider = new(_rows, _cols, _bombs);
         Services.AddService(_gameStateProvider);
-        Vector2 tileBoardDrawLocation = new(_margins, _margins);
+
+        Vector2 tileBoardDrawLocation = new(_borderWidth, _borderWidth * 2 + _panelHeight);
         Vector2 borderDrawLocation = Vector2.Zero;
         TileBoard tileBoard = new(this, tileBoardDrawLocation);
         Border border = new(this, borderDrawLocation);
+        Panel panel = new Panel(this);
+
         Components.Add(tileBoard);
         Components.Add(border);
+        Components.Add(panel);
 
         SetWindowSize();
 
@@ -67,15 +70,15 @@ public class Main : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(new Color(243,243,243));
+        GraphicsDevice.Clear(new Color(243, 243, 243));
 
         // TODO: Add your drawing code here
         base.Draw(gameTime);
     }
     private void SetWindowSize()
     {
-        _graphics.PreferredBackBufferHeight = _margins * 2 + _rows * 32;
-        _graphics.PreferredBackBufferWidth = _margins * 2 + _cols * 32;
+        _graphics.PreferredBackBufferHeight = _borderWidth * 3 + _panelHeight + _rows * 32;
+        _graphics.PreferredBackBufferWidth = _borderWidth * 2 + _cols * 32;
         _graphics.ApplyChanges();
     }
 }

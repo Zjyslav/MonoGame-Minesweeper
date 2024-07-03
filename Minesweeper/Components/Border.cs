@@ -4,13 +4,14 @@ using Minesweeper.EventArgs;
 using Minesweeper.Services;
 using Minesweeper.State;
 
-namespace Minesweeper;
+namespace Minesweeper.Components;
 public class Border : DrawableGameComponent
 {
     private Texture2D _spriteSheet;
     private SpriteBatch _spriteBatch;
-    GameStateProvider _gameStateProvider;
+    private GameStateProvider _gameStateProvider;
     private GameState _gameState;
+    private int _panelHeightInTiles = 3;
 
     private const int _tileWidth = 32;
     private const int _tileHeight = 32;
@@ -35,23 +36,51 @@ public class Border : DrawableGameComponent
 
         _spriteBatch.Begin();
 
-        DrawTile(BorderTile.UpperLeftCorner, _drawLocation + Vector2.Zero);
+        float topRowY = 0;
+        float lastColX = _tileWidth * (_gameState.Cols + 1);
+        float lastRowY = _tileHeight * (_gameState.Rows + _panelHeightInTiles + 2);
+
+        // Top row
+        DrawTile(BorderTile.UpperLeftCorner, _drawLocation + new Vector2(0, topRowY));
         for (int col = 1; col <= _gameState.Cols; col++)
         {
-            DrawTile(BorderTile.HorizontalTop, _drawLocation + new Vector2(_tileWidth * col, 0));
+            DrawTile(BorderTile.HorizontalTop, _drawLocation + new Vector2(_tileWidth * col, topRowY));
         }
-        DrawTile(BorderTile.UpperRightCorner, _drawLocation + new Vector2(_tileWidth * (_gameState.Cols + 1), 0));
-        for (int row = 1; row <= _gameState.Rows; row++)
+        DrawTile(BorderTile.UpperRightCorner, _drawLocation + new Vector2(lastColX, topRowY));
+
+        // Panel border and background
+        for (int row = 1; row <= _panelHeightInTiles; row++)
         {
             DrawTile(BorderTile.VerticalLeft, _drawLocation + new Vector2(0, _tileHeight * row));
-            DrawTile(BorderTile.VerticalRight, _drawLocation + new Vector2(_tileWidth * (_gameState.Cols + 1), _tileHeight * row));
+            for (int col = 1; col <= _gameState.Cols; col++)
+            {
+                DrawTile(BorderTile.Inside, _drawLocation + new Vector2(_tileWidth * col, _tileHeight * row));
+            }
+            DrawTile(BorderTile.VerticalRight, _drawLocation + new Vector2(lastColX, _tileHeight * row));
         }
-        DrawTile(BorderTile.BottomLeftCorner, _drawLocation + new Vector2(0, _tileHeight * (_gameState.Rows + 1)));
+
+        // Row between Panel and Board
+        DrawTile(BorderTile.LeftT, _drawLocation + new Vector2(0, _tileHeight * (_panelHeightInTiles + 1)));
         for (int col = 1; col <= _gameState.Cols; col++)
         {
-            DrawTile(BorderTile.HorizontalBottom, _drawLocation + new Vector2(_tileWidth * col, _tileHeight * (_gameState.Rows + 1)));
+            DrawTile(BorderTile.HorizontalTop, _drawLocation + new Vector2(_tileWidth * col, _tileHeight * (_panelHeightInTiles + 1)));
         }
-        DrawTile(BorderTile.BottomRightCorner, _drawLocation + new Vector2(_tileWidth * (_gameState.Cols + 1), _tileHeight * (_gameState.Rows + 1)));
+        DrawTile(BorderTile.RightT, _drawLocation + new Vector2(lastColX, _tileHeight * (_panelHeightInTiles + 1)));
+
+        // Board border
+        for (int row = 1; row <= _gameState.Rows; row++)
+        {
+            DrawTile(BorderTile.VerticalLeft, _drawLocation + new Vector2(0, _tileHeight * (row + _panelHeightInTiles + 1)));
+            DrawTile(BorderTile.VerticalRight, _drawLocation + new Vector2(lastColX, _tileHeight * (row + _panelHeightInTiles + 1)));
+        }
+
+        // Bottom row
+        DrawTile(BorderTile.BottomLeftCorner, _drawLocation + new Vector2(0, lastRowY));
+        for (int col = 1; col <= _gameState.Cols; col++)
+        {
+            DrawTile(BorderTile.HorizontalBottom, _drawLocation + new Vector2(_tileWidth * col, lastRowY));
+        }
+        DrawTile(BorderTile.BottomRightCorner, _drawLocation + new Vector2(lastColX, lastRowY));
 
 
         _spriteBatch.End();

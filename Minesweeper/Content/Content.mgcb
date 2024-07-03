@@ -25,3 +25,10 @@
 /processorParam:TextureFormat=Color
 /build:minesweeper_spritesheet.png
 
+#begin PanelFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:PanelFont.spritefont
+
