@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Minesweeper.State;
@@ -11,9 +12,11 @@ public class GameState
     public int BombsTotal { get; init; }
     public int Rows { get; private set; }
     public int Cols { get; private set; }
+    public TimeSpan GameTime => _stopwatch.Elapsed;
     public event EventHandler GameStarted;
     public event EventHandler GameLost;
 
+    private Stopwatch _stopwatch = new();
     public GameState(int rows, int cols, int bombs)
     {
         GameStarted += OnGameStarted;
@@ -192,11 +195,13 @@ public class GameState
     private void OnGameStarted(object sender, System.EventArgs e)
     {
         Status = GameStatus.Started;
+        _stopwatch.Start();
     }
 
     private void OnGameLost(object sender, System.EventArgs e)
     {
         Status = GameStatus.Lost;
+        _stopwatch.Stop();
         foreach (TileState tile in TileStates)
         {
             tile.RevealOnGameLost();

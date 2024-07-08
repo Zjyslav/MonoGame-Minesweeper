@@ -120,8 +120,33 @@ public class Panel : DrawableGameComponent
 
     private string GetTimeText()
     {
-        // TODO
-        return "000";
+        if (_gameState.Status == GameStatus.NotStarted)
+        {
+            return "---";
+        }
+
+        double seconds = _gameState.GameTime.TotalSeconds;
+        double minutes = _gameState.GameTime.TotalMinutes;
+        double hours = _gameState.GameTime.TotalHours;
+        double days = _gameState.GameTime.TotalDays;
+
+        if (seconds <= 999)
+        {
+            return seconds.ToString("000");
+        }
+        else if (minutes <= 99)
+        {
+            return $"{minutes.ToString("00")}M";
+        }
+        else if (hours <= 99)
+        {
+            return $"{hours.ToString("00")}H";
+        }
+        else if (days <= 99)
+        {
+            return $"{days.ToString("00")}D";
+        }
+        return "ERR";
     }
 
     private PanelTile GetFaceTile()
