@@ -60,11 +60,6 @@ public class Main : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            _gameStateProvider.RestartGame(_rows, _cols, _bombs);
-
-        // TODO: Add your update logic here
-
         base.Update(gameTime);
     }
 

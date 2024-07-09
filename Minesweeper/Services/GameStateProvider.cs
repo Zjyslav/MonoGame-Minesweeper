@@ -23,4 +23,9 @@ public class GameStateProvider
 
         GameRestarted.Invoke(this, e);
     }
+
+    public void RestartGame()
+    {
+        RestartGame(ActiveGameState.Rows, ActiveGameState.Cols, ActiveGameState.BombsTotal);
+    }
 }

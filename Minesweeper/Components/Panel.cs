@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Minesweeper.Extensions;
 using Minesweeper.Services;
 using Minesweeper.State;
-using System;
 
 namespace Minesweeper.Components;
 public class Panel : DrawableGameComponent
@@ -15,6 +16,7 @@ public class Panel : DrawableGameComponent
 
     private const int _tileWidth = 32;
     private const int _tileHeight = 32;
+    private bool _mouseDown = false;
     public Panel(Game game) : base(game)
     {
     }
@@ -37,10 +39,9 @@ public class Panel : DrawableGameComponent
         base.Draw(gameTime);
 
         _spriteBatch.Begin();
-        Vector2 facePosition = new(((_gameState.Cols + 1) * _tileWidth) / 2, 2 * _tileHeight);
-
-        Vector2 bombsScreenPosition = new(1.25f * _tileWidth, 1.5f * _tileHeight);
-        Vector2 timeScreenPosition = new((_gameState.Cols - 2.25f) * _tileWidth, 1.5f * _tileHeight);
+        Vector2 facePosition = GetFacePosition();
+        Vector2 bombsScreenPosition = GetBombsScreenPosition();
+        Vector2 timeScreenPosition = GetTimeScreenPosition();
 
         DrawBlackScreen(bombsScreenPosition);
         DrawBlackScreen(timeScreenPosition);
@@ -51,6 +52,25 @@ public class Panel : DrawableGameComponent
         _spriteBatch.DrawString(_spriteFont, GetTimeText(), timeScreenPosition + new Vector2(0.35f * _tileWidth, 0), Color.Red);
 
         _spriteBatch.End();
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        var mouseState = Mouse.GetState();
+        HandleLeftMouseButton(mouseState);
+    }
+
+    
+
+    private bool IsMouseOver(MouseState mouseState)
+    {
+        var facePosition = GetFacePosition();
+        var faceBounds = new Rectangle((int)facePosition.X,
+                                       (int)facePosition.Y,
+                                       _tileWidth,
+                                       _tileHeight);
+        bool mouseOver = mouseState.Position.IsInBounds(faceBounds);
+        return mouseOver;
     }
 
     protected override void LoadContent()
@@ -66,6 +86,27 @@ public class Panel : DrawableGameComponent
         base.UnloadContent();
     }
 
+    private void HandleLeftMouseButton(MouseState mouseState)
+    {
+        bool mouseOver = IsMouseOver(mouseState);
+        if (mouseOver == false)
+        {
+            _mouseDown = false;
+            return;
+        }
+
+        if (_mouseDown == false && mouseState.LeftButton == ButtonState.Pressed)
+        {
+            _mouseDown = true;
+            return;
+        }
+
+        if (_mouseDown && mouseState.LeftButton == ButtonState.Released)
+        {
+            _gameStateProvider.RestartGame();
+        }
+    }
+
     private void DrawBlackScreen(Vector2 startingPosition)
     {
         DrawTile(PanelTile.UpperLeftCorner, new Vector2(0 * _tileWidth, 0 * _tileHeight) + startingPosition);
@@ -74,6 +115,21 @@ public class Panel : DrawableGameComponent
         DrawTile(PanelTile.BottomLeftCorner, new Vector2(0 * _tileWidth, 1 * _tileHeight) + startingPosition);
         DrawTile(PanelTile.HorizontalBottom, new Vector2(1 * _tileWidth, 1 * _tileHeight) + startingPosition);
         DrawTile(PanelTile.BottomRightCorner, new Vector2(2 * _tileWidth, 1 * _tileHeight) + startingPosition);
+    }
+
+    private Vector2 GetTimeScreenPosition()
+    {
+        return new((_gameState.Cols - 2.25f) * _tileWidth, 1.5f * _tileHeight);
+    }
+
+    private static Vector2 GetBombsScreenPosition()
+    {
+        return new(1.25f * _tileWidth, 1.5f * _tileHeight);
+    }
+
+    private Vector2 GetFacePosition()
+    {
+        return new(((_gameState.Cols + 1) * _tileWidth) / 2, 2 * _tileHeight);
     }
 
     private void DrawTile(PanelTile tile, Vector2 position)
