@@ -15,12 +15,14 @@ public class GameState
     public TimeSpan GameTime => _stopwatch.Elapsed;
     public event EventHandler GameStarted;
     public event EventHandler GameLost;
+    public event EventHandler GameWon;
 
     private Stopwatch _stopwatch = new();
     public GameState(int rows, int cols, int bombs)
     {
         GameStarted += OnGameStarted;
         GameLost += OnGameLost;
+        GameWon += OnGameWon;
 
         if (bombs > rows * cols)
         {
@@ -142,6 +144,10 @@ public class GameState
             StartGame();
         }
         tile.Reveal();
+        if (CheckWinCondition())
+        {
+            WinGame();
+        }
     }
 
     private void HandleHiddenTileBothMBClick(TileState tile)
@@ -190,7 +196,10 @@ public class GameState
     {
         GameLost?.Invoke(this, System.EventArgs.Empty);
     }
-
+    private void WinGame()
+    {
+        GameWon?.Invoke(this, System.EventArgs.Empty);
+    }
 
     private void OnGameStarted(object sender, System.EventArgs e)
     {
@@ -207,6 +216,12 @@ public class GameState
             tile.RevealOnGameLost();
         }
     }
+    private void OnGameWon(object sender, System.EventArgs e)
+    {
+        Status = GameStatus.Won;
+        _stopwatch.Stop();
+        // TODO highscores
+    }
 
     private void MoveBombToRandomEmptyTile(TileState tileWithBomb)
     {
@@ -217,6 +232,17 @@ public class GameState
 
         tileWithBomb.HasBomb = false;
         emptyTile.HasBomb = true;
+    }
+    private bool CheckWinCondition()
+    {
+        if (Status == GameStatus.Lost)
+        {
+            return false;
+        }
+
+        return TileStates.All(tile =>
+            tile.Status == TileStatus.Revealed ||
+            tile.HasBomb);
     }
 }
 
