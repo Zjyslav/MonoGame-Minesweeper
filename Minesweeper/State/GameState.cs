@@ -180,6 +180,10 @@ public class GameState
                 adjacent.Reveal();
             }
         }
+        if (CheckWinCondition())
+        {
+            WinGame();
+        }
     }
 
     private void HandleFlaggedTileLMBClick(TileState tile)
