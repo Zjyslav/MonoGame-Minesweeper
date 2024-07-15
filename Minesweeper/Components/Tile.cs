@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Minesweeper.State;
-using System;
 
 namespace Minesweeper.Components;
 public class Tile : DrawableGameComponent
@@ -14,6 +13,7 @@ public class Tile : DrawableGameComponent
     private Vector2 _tilePosition;
     private bool _leftMouseButtonDown = false;
     private bool _rightMouseButtonDown = false;
+    private bool _bothMouseButtonsDown = false;
 
     private const int _tileWidth = 32;
     private const int _tileHeight = 32;
@@ -41,59 +41,88 @@ public class Tile : DrawableGameComponent
     {
         var mouseState = Mouse.GetState();
 
+        if (IsMouseOver(mouseState.Position) == false)
+        {
+            _leftMouseButtonDown = false;
+            _rightMouseButtonDown = false;
+            _bothMouseButtonsDown = false;
+            _state.RevealingAdjacent = false;
+            return;
+        }
+
         HandleLeftMouseButton(mouseState);
         HandleRightMouseButton(mouseState);
+        HandleBothMouseButtons(mouseState);
     }
 
     private void HandleLeftMouseButton(MouseState mouseState)
     {
+        if (_bothMouseButtonsDown)
+        {
+            return;
+        }
         if (_leftMouseButtonDown == false)
         {
             if (mouseState.LeftButton == ButtonState.Pressed &&
-                IsMouseOver(mouseState.Position) &&
                 _state.Status == TileStatus.Hidden)
             {
                 _leftMouseButtonDown = true;
             }
         }
-        else
+        else if (mouseState.LeftButton == ButtonState.Released)
         {
-            if (mouseState.LeftButton == ButtonState.Released)
-            {
-                _state.LMBClick();
-                _leftMouseButtonDown = false;
-            }
-            if (mouseState.LeftButton == ButtonState.Pressed &&
-                IsMouseOver(mouseState.Position) == false)
-            {
-                _leftMouseButtonDown = false;
-            }
+            _state.LMBClick();
+            _leftMouseButtonDown = false;
         }
     }
 
     private void HandleRightMouseButton(MouseState mouseState)
     {
+        if (_bothMouseButtonsDown)
+        {
+            return;
+        }
         if (_rightMouseButtonDown == false)
         {
             if (mouseState.RightButton == ButtonState.Pressed &&
-                IsMouseOver(mouseState.Position) &&
                 (_state.Status == TileStatus.Hidden || _state.Status == TileStatus.Flagged))
             {
                 _rightMouseButtonDown = true;
             }
         }
-        else
+        else if (mouseState.RightButton == ButtonState.Released)
         {
-            if (mouseState.RightButton == ButtonState.Released)
+            _state.RMBClick();
+            _rightMouseButtonDown = false;
+        }
+    }
+
+    private void HandleBothMouseButtons(MouseState mouseState)
+    {
+        if (_bothMouseButtonsDown == false &&
+            mouseState.LeftButton == ButtonState.Pressed &&
+            mouseState.RightButton == ButtonState.Pressed)
+        {
+            _leftMouseButtonDown = false;
+            _rightMouseButtonDown = false;
+            _bothMouseButtonsDown = true;
+            if (_state.Status == TileStatus.Revealed)
             {
-                _state.RMBClick();
-                _rightMouseButtonDown = false;
+                _state.RevealingAdjacent = true;
             }
-            if (mouseState.RightButton == ButtonState.Pressed &&
-                IsMouseOver(mouseState.Position) == false)
+        }
+
+        if (_bothMouseButtonsDown &&
+            mouseState.LeftButton == ButtonState.Released &&
+            mouseState.RightButton == ButtonState.Released &&
+            IsMouseOver(mouseState.Position))
+        {
+            if (_state.Status == TileStatus.Revealed)
             {
-                _rightMouseButtonDown = false;
+                _state.BothMBClick();
             }
+            _bothMouseButtonsDown = false;
+            _state.RevealingAdjacent = false;
         }
     }
 
@@ -124,7 +153,8 @@ public class Tile : DrawableGameComponent
 
     private Rectangle GetSourceRectangle()
     {
-        if (_leftMouseButtonDown)
+        if (_leftMouseButtonDown ||
+            (_state.Status == TileStatus.Hidden && _state.ToBeRevealed))
         {
             return new(1 * _tileWidth, 0, _tileWidth, _tileHeight);
         }
@@ -156,7 +186,7 @@ public class Tile : DrawableGameComponent
 
         switch (_state.AdjacentBombs)
         {
-            
+
             case 1:
                 return new(7 * _tileWidth, 0, _tileWidth, _tileHeight);
             case 2:

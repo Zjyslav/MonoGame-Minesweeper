@@ -9,10 +9,10 @@ public class TileState
     public int Col { get; }
     public bool HasBomb { get; set; } = false;
     public TileStatus Status { get; set; } = TileStatus.Hidden;
-
-    public int AdjacentBombs => _adjacentTiles.Where(t => t.HasBomb).Count();
-
-    private List<TileState> _adjacentTiles = new();
+    public bool RevealingAdjacent { get; set; } = false;
+    public List<TileState> AdjacentTiles { get; private set; } = new();
+    public bool ToBeRevealed => AdjacentTiles.Any(t => t.RevealingAdjacent);
+    public int AdjacentBombs => AdjacentTiles.Where(t => t.HasBomb).Count();
 
     public event EventHandler RMBClicked;
     public event EventHandler LMBClicked;
@@ -27,7 +27,7 @@ public class TileState
 
     public void LinkWithAdjacent(IEnumerable<TileState> tiles)
     {
-        _adjacentTiles = tiles
+        AdjacentTiles = tiles
             .Where(t => t.Row >= Row - 1 && t.Row <= Row + 1)
             .Where(t => t.Col >= Col - 1 && t.Col <= Col + 1)
             .Where(t => t != this)
@@ -97,7 +97,7 @@ public class TileState
 
     private void RevealAdjacent()
     {
-        foreach (TileState tile in _adjacentTiles)
+        foreach (TileState tile in AdjacentTiles)
         {
             tile.Reveal();
         }

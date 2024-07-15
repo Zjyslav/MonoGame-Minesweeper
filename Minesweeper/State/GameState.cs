@@ -165,7 +165,21 @@ public class GameState
     }
     private void HandleRevealedTileBothMBClick(TileState tile)
     {
-        throw new NotImplementedException();
+        var bombs = tile.AdjacentBombs;
+        var flags = tile.AdjacentTiles.Count(t => t.Status == TileStatus.Flagged);
+
+        if (bombs != flags)
+        {
+            return;
+        }
+
+        foreach (var adjacent in tile.AdjacentTiles)
+        {
+            if (adjacent.Status == TileStatus.Hidden)
+            {
+                adjacent.Reveal();
+            }
+        }
     }
 
     private void HandleFlaggedTileLMBClick(TileState tile)
